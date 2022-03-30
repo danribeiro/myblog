@@ -1,6 +1,6 @@
-from re import L
-from tabnanny import verbose
 from django.db import models
+from django.template.defaultfilters import slugify
+from tinymce.models import HTMLField
 
 
 class Author(models.Model):
@@ -27,9 +27,7 @@ class Category(models.Model):
         verbose_name = "Categoria",
         max_length = 100
     )
-    slug = models.SlugField(
-        max_length = 100
-    )
+    slug = models.SlugField()
 
     class Meta:
         db_table = "category"
@@ -39,16 +37,26 @@ class Category(models.Model):
     def __str__(self):
         return  self.name
 
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # Newly created object, so set slug   
+            self.slug = slugify(self.name)
+        super(Category, self).save(*args, **kwargs)
+
 
 class Article(models.Model):
     title = models.CharField(
         max_length = 255
     )
+    slug = models.SlugField(
+        null = True,
+        blank = True
+    )
     subtitle = models.CharField(
         max_length = 255,
         blank = True
     )
-    body = models.TextField()
+    body = HTMLField()
 
     class Meta:
         db_table = "article"
@@ -57,12 +65,17 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # Newly created object, so set slug   
+            self.slug = slugify(self.title)
+        super(Article, self).save(*args, **kwargs)
 
 
 class Publish(models.Model):
-    author = models.OneToOneField(
-        Author,
-        on_delete = models.PROTECT
+    author = models.ManyToManyField(
+        Author
     )
     article = models.OneToOneField(
         Article,
