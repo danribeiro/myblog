@@ -11,40 +11,39 @@
 		<!-- Content -->
 		<div id="content">
 			<div class="inner">
-				{% for art in data %}
+				{% for art in object_list %}
 				<!-- Post -->
 				<article class="box post post-excerpt">
 					<header>
-						<h2><a href="#">{{ art.article.title}}</a></h2>
+						<h2><a href="#{{ art.article.slug }}">{{ art.article.title}}</a></h2>
 						<p>{{art.article.subtitle}}</p>
 					</header>
 					<div class="info">
 						<span class="date">
-							<span class="month">{% now "b" %}<span>y</span></span> 
-							<span class="day">{% now "d" %}</span>
-							<span class="year">, {% now "y"%}</span>
+							<span class="month">{{ art.created_at|date:"M"}}<span>y</span></span> 
+							<span class="day">{{ art.created_at|date:"d"}}</span>
 						</span>
 					</div>
-					<a href="#" class="image featured"><img src="{% static 'images/pic01.jpg'%}" alt="" /></a>
+					{% if art.article.image %}
+						<a href="#" class="image featured">
+							<img src="{{ art.article.image.url }}" alt="thumb" />
+						</a>
+					{% endif %}
 					{% autoescape off %}
-					{{art.article.body}}
+						{{art.article.body}}
 					{% endautoescape %}
+					{% empty %}
+					<article class="box post post-excerpt">
+						<header>
+							<h2><a href=""></a>Nenhum resultado encontrado</a></h2>
+							<p>Termo: {{search}}</p>
+						</header>
+					</article>
 				</article>
 				{% endfor %}
 				<!-- Pagination -->
-				<div class="pagination">
-					<!--<a href="#" class="button previous">Previous Page</a>-->
-					<div class="pages">
-						<a href="#" class="active">1</a>
-						<a href="#">2</a>
-						<a href="#">3</a>
-						<a href="#">4</a>
-						<span>&hellip;</span>
-						<a href="#">20</a>
-					</div>
-					<a href="#" class="button next">Next Page</a>
-				</div>
-
+				{%  include 'includes/pagination.html' %}
+				<!--Fim pagination-->
 			</div>
 		</div>
 
@@ -52,7 +51,7 @@
 		<div id="sidebar">
 
 			<!-- Logo -->
-				<h1 id="logo"><a href="#">PENSECODE</a></h1>
+				<h1 id="logo"><a href="{% url 'home'%}">codetips</a></h1>
 
 			<!-- Nav -->
 				<nav id="nav">
@@ -66,14 +65,15 @@
 
 			<!-- Search -->
 				<section class="box search">
-					<form method="post" action="#">
-						<input type="text" class="text" name="search" placeholder="Search" />
+					<form method="get" action="">
+						{% csrf_token %}
+						<input type="text" class="text" name="q" placeholder="Search" />
 					</form>
 				</section>
 
 			<!-- Copyright -->
 				<ul id="copyright">
-					<li>&copy; Untitled.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					<li>&copy; codetips.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
 				</ul>
 
 		</div>

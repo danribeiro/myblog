@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load static %}
+
+<div class="pagination">
+    {% if object_list.has_previous %}
+        <a class="button next" href="?page=1{% if search %}&q={{search}}{%endif%}" aria-label="Next">
+            Previous
+        </a>
+    {% endif %}
+    <div class="pages">
+        {% if object_list.paginator.num_pages > 1 %}
+            {% for num in object_list.paginator.page_range %}
+                {% if object_list.number == num %}
+                <a class="active" href="#">{{num}}</a>
+                {% elif num > object_list.number|add:'-3' and num < object_list.number|add:'3' %}
+                <a class="" href="?page={{ num }}{% if search %}&q={{search}}{%endif%}">{{num}}</a>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% if object_list.has_next %}
+        <a class="button next" href="?page={{ object_list.next_page_number }}{% if search %}&q={{search}}{%endif%}"
+            aria-label="Next">Next
+        </a>
+    {% endif %}
+</div>

@@ -3,6 +3,14 @@ from django.template.defaultfilters import slugify
 from tinymce.models import HTMLField
 
 
+def files_path(instance, filename):
+    return 'article/{}/{}'.format(
+        instance.id,
+        filename
+    )
+
+
+
 class Author(models.Model):
     first_name = models.CharField(
         verbose_name = "Nome",
@@ -27,7 +35,10 @@ class Category(models.Model):
         verbose_name = "Categoria",
         max_length = 100
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        blank = True,
+        unique = True
+    )
 
     class Meta:
         db_table = "category"
@@ -50,13 +61,30 @@ class Article(models.Model):
     )
     slug = models.SlugField(
         null = True,
-        blank = True
+        blank = True,
+        unique = True 
     )
     subtitle = models.CharField(
         max_length = 255,
         blank = True
     )
     body = HTMLField()
+    image = models.ImageField(
+        upload_to = files_path,
+        verbose_name = 'Image',
+        null = True,
+        blank = True
+    )
+    attachment = models.FileField(
+        upload_to = files_path,
+        verbose_name = 'Attachment',
+        null = True,
+        blank = True
+    )
+    created_at = models.DateTimeField(
+        auto_now_add = True,
+        null = True
+    )
 
     class Meta:
         db_table = "article"
@@ -93,6 +121,7 @@ class Publish(models.Model):
         db_table = "publish"
         verbose_name = "Publicação"
         verbose_name_plural = "Publicações"
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.article.title
